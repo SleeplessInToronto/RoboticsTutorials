@@ -482,7 +482,7 @@ cd /path/to/your/workspace   # e.g. ~/Robotics
 ### Step 3 — Build
 
 ```bash
-cd ~/Robotics
+cd ~/RoboticsTutorials
 source /opt/ros/humble/setup.bash
 colcon build --packages-select ekf_se3_localization \
              --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo
@@ -503,11 +503,11 @@ If the build fails, the most common cause is a missing `sophus` package — re-r
 You must do this in **every new terminal** before running any ROS2 commands for this package:
 
 ```bash
-source ~/Robotics/install/setup.bash
+source ~/RoboticsTutorials/install/setup.bash
 ```
 
 > Tip: add this line to your `~/.bashrc` so it runs automatically:
-> `echo "source ~/Robotics/install/setup.bash" >> ~/.bashrc`
+> `echo "source ~/RoboticsTutorials/install/setup.bash" >> ~/.bashrc`
 
 ### Step 5 — Launch the simulation
 
