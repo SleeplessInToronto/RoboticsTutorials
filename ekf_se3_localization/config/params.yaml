@@ -1,0 +1,57 @@
+ekf_node:
+  ros__parameters:
+    prediction_rate: 50.0
+
+    # Process noise Q — diagonal of se(3) tangent [ρx,ρy,ρz, φx,φy,φz]
+    # Car is planar: z, roll, pitch never change → set those to near-zero.
+    # Heading rate (φz) is commanded directly by cmd_vel → small uncertainty.
+    # Position x,y: allow ~0.03 m/√step uncertainty from wheel slip.
+    Q_diag: [0.001, 0.001, 0.00001, 0.00001, 0.00001, 0.00001]
+
+    # Measurement noise R — centroid from 1-3 LiDAR returns at 3 m range.
+    # Raw LiDAR stddev is 0.015 m but few-point centroid + cylinder surface
+    # bias puts realistic noise at ~0.5 m.
+    R_diag: [0.04, 0.04, 0.04]
+
+    # Initial pose (translation [m] and quaternion [qx,qy,qz,qw])
+    init_translation: [0.0, 0.0, 0.0]
+    init_quaternion:  [0.0, 0.0, 0.0, 1.0]
+
+    # Initial covariance — car spawns at origin, same as EKF init, so
+    # initial position is known well. Small P0 keeps first-correction K small.
+    P0_diag: [0.01, 0.01, 0.001, 0.001, 0.001, 0.01]
+
+    map_frame:        "map"
+    base_link_frame:  "base_link"
+    ransac_inlier_thresh: 0.5   # max residual [m] to count a beacon as inlier
+
+    # Beacon positions in world frame [x0,y0,z0, x1,y1,z1, ...]
+    # 6 beacons at r=15 m from circle centre (0,7), spaced 60° apart.
+    # Car circles at r=7 m → 8 m closest approach; max 22 m (> 20 m LiDAR range).
+    # Opposite beacon goes out of range as car moves → P grows between detections.
+    beacon_positions: [ 15.0,   7.0,   1.0,
+                         7.5,  20.0,   1.0,
+                        -7.5,  20.0,   1.0,
+                       -15.0,   7.0,   1.0,
+                        -7.5,  -6.0,   1.0,
+                         7.5,  -6.0,   1.0]
+
+lidar_beacon_detector_node:
+  ros__parameters:
+    beacon_positions: [ 15.0,   7.0,   1.0,
+                         7.5,  20.0,   1.0,
+                        -7.5,  20.0,   1.0,
+                       -15.0,   7.0,   1.0,
+                        -7.5,  -6.0,   1.0,
+                         7.5,  -6.0,   1.0]
+    cluster_radius:   0.7    # search radius around EKF-predicted beacon location [m]
+    min_cluster_pts:  1      # thin poles give 1-2 hits/scan at 14 m range
+    base_link_frame:  "base_link"
+
+figure8_node:
+  ros__parameters:
+    speed:  1.0    # forward speed [m/s]
+    radius: 7.0    # circle radius [m]
+    rate:   50.0   # publish rate [Hz]
+    kp_v:   0.0    # 0 = open-loop (kp>0 with one-step odom delay is unstable for kp>1)
+    kp_w:   0.0    # 0 = open-loop; cmd_vel = desired = constant 0.143 rad/s

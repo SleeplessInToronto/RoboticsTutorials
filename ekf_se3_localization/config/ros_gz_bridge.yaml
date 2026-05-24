@@ -1,0 +1,36 @@
+# ros_gz_bridge topic configuration for Gazebo Fortress + ROS2 Humble
+#
+# Direction: ROS_TO_GZ  = ROS2 publishes, Gz subscribes
+#            GZ_TO_ROS  = Gz publishes, ROS2 subscribes
+
+- ros_topic_name: /cmd_vel
+  gz_topic_name: /cmd_vel
+  ros_type_name: geometry_msgs/msg/Twist
+  gz_type_name: gz.msgs.Twist
+  direction: ROS_TO_GZ
+
+- ros_topic_name: /odom
+  gz_topic_name: /odom
+  ros_type_name: nav_msgs/msg/Odometry
+  gz_type_name: gz.msgs.Odometry
+  direction: GZ_TO_ROS
+
+- ros_topic_name: /lidar/points
+  gz_topic_name: /lidar/points
+  ros_type_name: sensor_msgs/msg/PointCloud2
+  gz_type_name: gz.msgs.PointCloudPacked
+  direction: GZ_TO_ROS
+
+- ros_topic_name: /clock
+  gz_topic_name: /clock
+  ros_type_name: rosgraph_msgs/msg/Clock
+  gz_type_name: gz.msgs.Clock
+  direction: GZ_TO_ROS
+
+# World dynamic pose — used by gz_ground_truth.py to publish /ground_truth/odom.
+# Each transform in the TFMessage has header.frame_id="world", child_frame_id=<model_name>.
+- ros_topic_name: /world/beacons_world/dynamic_pose/info
+  gz_topic_name: /world/beacons_world/dynamic_pose/info
+  ros_type_name: tf2_msgs/msg/TFMessage
+  gz_type_name: gz.msgs.Pose_V
+  direction: GZ_TO_ROS
