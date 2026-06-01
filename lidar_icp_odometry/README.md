@@ -715,7 +715,7 @@ s = \left\lfloor \frac{\arctan_2(p_y, p_x) + \pi}{2\pi} \cdot N_s \right\rfloor$
 The cell value $\text{SC}[r][s]$ records the **maximum height** (z-coordinate) of all points
 falling in that bin:
 
-$$\text{SC}[r][s] = \max\bigl\{ p_z \;\big|\; \text{point} \; \boldsymbol{p} \text{ falls in ring } r, \text{ sector } s \bigr\}$$
+$$\text{SC}[r][s] = \max\bigl\lbrace p_z \;\big|\; \text{point} \; \boldsymbol{p} \text{ falls in ring } r, \text{ sector } s \bigr\rbrace$$
 
 Empty cells default to 0. The resulting $20 \times 60$ matrix is the Scan Context descriptor.
 
