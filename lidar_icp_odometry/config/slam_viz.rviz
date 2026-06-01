@@ -1,0 +1,80 @@
+Panels:
+  - Class: rviz_common/Displays
+    Help Height: 0
+    Name: Displays
+    Property Tree Widget:
+      Expanded: ~
+      Splitter Ratio: 0.5
+    Tree Height: 600
+
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Value: true
+      Color: 160; 160; 164
+      Cell Size: 1
+      Line Style:
+        Line Width: 0.03
+        Value: Lines
+      Normal Cell Count: 0
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Plane: XY
+      Plane Cell Count: 50
+
+    - Class: rviz_default_plugins/Path
+      Name: Ground truth
+      Topic:
+        Value: /ground_truth/path
+      Color: 0; 255; 0
+      Line Width: 0.08
+      Value: true
+
+    - Class: rviz_default_plugins/Path
+      Name: SLAM path
+      Topic:
+        Value: /slam/path
+      Color: 0; 180; 255
+      Line Width: 0.06
+      Value: true
+
+    - Class: rviz_default_plugins/PointCloud2
+      Name: SLAM map
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Best Effort
+        Value: /slam/map
+      Value: true
+      Size (m): 0.05
+      Color Transformer: FlatColor
+      Color: 180; 220; 255
+      Alpha: 0.8
+
+  Enabled: true
+  Global Options:
+    Background Color: 25; 25; 25
+    Fixed Frame: odom
+    Frame Rate: 20
+
+  Tools:
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Name: 3D orbit
+      Distance: 35
+      Focal Point:
+        X: 0
+        Y: 7
+        Z: 0
+      Pitch: 0.4
+      Yaw: 0.0
+      Value: Orbit (rviz_default_plugins)

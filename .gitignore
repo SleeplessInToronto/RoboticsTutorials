@@ -2,3 +2,4 @@ build/
 install/
 log/
 diagnostics/
+icp_sim_bag/

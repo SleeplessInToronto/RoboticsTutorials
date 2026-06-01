@@ -1,0 +1,118 @@
+# =============================================================================
+# lidar_icp_odometry — node parameters
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# icp_odometry_node — raw ICP odometry (§8.2, no loop closure)
+# -----------------------------------------------------------------------------
+icp_odometry_node:
+  ros__parameters:
+
+    # ---- Voxel grid downsampling (IcpSolver::voxel_downsample) --------------
+    # Replaces each occupied voxel with its centroid (std::unordered_map).
+    # Reduces a raw VLP-16 scan (~11 500 pts) to ~400–800 points at 10 Hz.
+    # Larger leaf → faster, coarser normals, lower correspondence accuracy.
+    # Rule of thumb: leaf_size ≥ 3× LiDAR range noise (~1.5 cm).
+    voxel_leaf_size: 0.3          # [m]
+
+    # ---- Normal estimation (IcpSolver::estimate_normals) --------------------
+    # k nearest neighbours for the local PCA tangent-plane fit.
+    # k < 10  → noisy normals (ill-conditioned 3×3 covariance)
+    # k > 30  → over-smoothed, loses edge/corner detail
+    normal_k_neighbors: 20
+
+    # ---- ICP solver (IcpSolver::align) --------------------------------------
+    max_iterations: 50
+
+    # Stop when ‖ξ‖₂ < tol   (ξ ∈ ℝ⁶, Sophus ordering)
+    # 1e-3 ≈ 1 mm translation / 0.06° rotation per iteration — appropriate
+    # for a sensor with ~15 mm Gaussian noise
+    convergence_tolerance: 1.0e-3
+
+    # Reject source–target pairs farther apart than this distance.
+    # Rule of thumb: 3–5× voxel_leaf_size.
+    max_correspondence_distance: 1.0   # [m]
+
+    # ---- Ground filter ------------------------------------------------------
+    # Sensor-frame z cutoff: the lidar sits 0.8 m above the floor, so floor
+    # returns arrive at z ≈ -0.8 m.  Points below this threshold are dropped
+    # before ICP — they constrain only z/pitch/roll (already well-observed)
+    # and add nothing to the x/y/yaw estimate that ICP cares about most.
+    min_point_z: -0.5             # [m] in sensor frame
+
+    # ---- Frame IDs ----------------------------------------------------------
+    odom_frame:      "odom"
+    base_link_frame: "base_link"
+
+# -----------------------------------------------------------------------------
+# slam_node — full LiDAR SLAM (§8.4)
+#   ICP odometry  +  Scan Context loop closure  +  Gauss-Newton PGO
+# -----------------------------------------------------------------------------
+slam_node:
+  ros__parameters:
+
+    # ---- Pre-processing (same role as in icp_odometry_node) -----------------
+    voxel_leaf_size:           0.3    # [m]
+    normal_k_neighbors:        20
+    max_iterations:            50
+    convergence_tolerance:     1.0e-3
+    max_correspondence_distance: 1.0  # [m]
+
+    # ---- Keyframe selection -------------------------------------------------
+    # A new keyframe is created whenever the vehicle moves at least
+    # keyframe_min_dist metres OR rotates at least keyframe_min_angle radians
+    # since the last keyframe.  Frequent keyframes → richer loop detection
+    # but larger graph (and denser Gauss-Newton system).
+    keyframe_min_dist:  1.5    # [m]    — ~1.5 m travel triggers a keyframe
+    keyframe_min_angle: 0.3    # [rad]  — ~17° turn triggers a keyframe
+
+    # ---- Scan Context loop-closure detection (§8.3.2.2) ---------------------
+    #
+    # Stage 1 — ring-key pre-filter (fast O(N_RINGS) per pair):
+    #   Reject candidate if ring_key_distance > ring_key_threshold
+    ring_key_threshold: 0.2
+
+    # Stage 2 — full SC cosine distance:
+    #   Accept loop if sc_distance < sc_dist_threshold
+    #   Kim & Kim 2018 use ~0.2 for outdoor scenes; tighter here because
+    #   our Gazebo world is small and scenes are very similar.
+    sc_dist_threshold: 0.15
+
+    # Ignore the most recent min_loop_gap keyframes when searching for loops
+    # (prevents matching against the immediately preceding scan, which ICP
+    # already handles via odometry edges).
+    min_loop_gap: 20
+
+    # ---- ICP verification of loop-closure candidates ------------------------
+    lc_icp_max_iter:       100
+    lc_icp_max_corr_dist:  0.5    # [m] — tighter than odometry ICP to reject partial overlaps
+    lc_icp_rmse_threshold: 0.08   # [m] — scan-to-scan ICP gives ~0.02 m; 0.08 rejects bad alignments
+    # Handbook §3.2.2 eq. (3.6) — cycle consistency check
+    # Compose the loop closure with the inverse odometry chain; the result
+    # should be near identity.  Translation and rotation checked separately.
+    # γ footnote 9: "account for the size of the loop — longer loops accumulate more noise."
+    # γ per handbook footnote 9: "account for the size of the loop".
+    # One lap ≈ 44 m; observed ICP drift ≈ 1.5 m translation, ~0.35 rad heading.
+    # Set γ ≈ 3× observed drift so genuine loop closures pass but gross
+    # false positives (t_err=12 m, R_err=2.6 rad seen in logs) are rejected.
+    lc_cycle_t_threshold: 5.0   # [m]   ~3× one-lap translation drift
+    lc_cycle_R_threshold: 0.8   # [rad] ~2× one-lap heading drift (~46°)
+
+    # ---- Ground filter ------------------------------------------------------
+    min_point_z: -0.5             # [m] in sensor frame
+
+    # ---- Frame IDs ----------------------------------------------------------
+    odom_frame:      "odom"
+    base_link_frame: "base_link"
+
+# -----------------------------------------------------------------------------
+# Trajectory generator (circular, used by both nodes)
+# -----------------------------------------------------------------------------
+figure8_node:
+  ros__parameters:
+    speed:    1.0    # [m/s]  forward speed
+    radius:   7.0    # [m]    circle radius
+    rate:    50.0    # [Hz]   control loop rate
+    kp_v:     0.0    # 0 = open-loop; gains > 0 with one-step odom delay are unstable
+    kp_w:     0.0    # 0 = open-loop; cmd_vel = constant desired velocity
+    max_laps: 1.3    # stop after this many laps (1.3 = one full lap + buffer for loop closure)

@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>lidar_icp_odometry</name>
+  <version>0.1.0</version>
+  <description>
+    Point-to-Plane ICP LiDAR odometry on SE(3) — a practical implementation of
+    scan-to-scan registration following SLAM Handbook Chapter 8 (LiDAR SLAM, §8.2).
+    Demonstrates drift accumulation without loop closure, motivating full LiDAR SLAM (§8.4).
+    Zero PCL dependency: voxel grid and normal estimation implemented from scratch in Eigen;
+    KD-tree via vendored nanoflann single-header library.
+  </description>
+  <maintainer email="a.solares88@gmail.com">gui</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
+  <depend>tf2_eigen</depend>
+  <depend>tf2_msgs</depend>
+  <depend>rosgraph_msgs</depend>
+  <depend>visualization_msgs</depend>
+
+  <build_depend>sophus</build_depend>
+  <exec_depend>sophus</exec_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

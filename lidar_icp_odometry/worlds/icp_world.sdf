@@ -1,0 +1,292 @@
+<?xml version="1.0"?>
+<!--
+  icp_world.sdf — Gazebo Fortress world for the lidar_icp_odometry tutorial.
+
+  Robot trajectory: circle centred at (0, 7), radius 7 m.
+    → northernmost y = 14  southernmost y = 0  leftmost x = -7  rightmost x = 7
+
+  Room: x ∈ [-13, 13], y ∈ [-5, 20]  (26 m × 25 m interior)
+  Clearances: ~5 m on all sides from the robot path.
+
+  Six alcoves (all cut outward):
+    A, B  — north wall
+    C     — south wall
+    D     — east  wall
+    E, F  — west  wall
+-->
+<sdf version="1.9">
+  <world name="icp_world">
+
+    <physics name="default_physics" type="ode">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+    </physics>
+
+    <plugin filename="ignition-gazebo-physics-system"
+            name="gz::sim::systems::Physics"/>
+    <plugin filename="ignition-gazebo-user-commands-system"
+            name="gz::sim::systems::UserCommands"/>
+    <plugin filename="ignition-gazebo-scene-broadcaster-system"
+            name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="ignition-gazebo-sensors-system"
+            name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+
+    <light name="sun" type="directional">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="col">
+          <geometry><plane><normal>0 0 1</normal><size>200 200</size></plane></geometry>
+        </collision>
+        <visual name="vis">
+          <geometry><plane><normal>0 0 1</normal><size>200 200</size></plane></geometry>
+          <material><ambient>0.4 0.4 0.4 1</ambient><diffuse>0.4 0.4 0.4 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         NORTH WALL  y = 20
+         N1: x -13.15 → -5  |  Alcove A (gap x=-5 to -1, 3m deep)  |
+         N2: x -1 → 4       |  Alcove B (gap x=4 to 8,  2.5m deep) |
+         N3: x 8 → 13.15
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <model name="N1"><static>true</static><pose>-9.075 20 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>8.15 0.3 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>8.15 0.3 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- Alcove A -->
+    <model name="NA_lw"><static>true</static><pose>-5 21.5 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.3 3.0 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.3 3.0 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="NA_bk"><static>true</static><pose>-3 23 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>4.0 0.3 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>4.0 0.3 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="NA_rw"><static>true</static><pose>-1 21.5 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.3 3.0 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.3 3.0 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="N2"><static>true</static><pose>1.5 20 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>5.0 0.3 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>5.0 0.3 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- Alcove B -->
+    <model name="NB_lw"><static>true</static><pose>4 21.25 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.3 2.5 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.3 2.5 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="NB_bk"><static>true</static><pose>6 22.5 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>4.0 0.3 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>4.0 0.3 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="NB_rw"><static>true</static><pose>8 21.25 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.3 2.5 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.3 2.5 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="N3"><static>true</static><pose>10.575 20 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>5.15 0.3 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>5.15 0.3 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         SOUTH WALL  y = -5
+         S1: x -13.15 → -3  |  Alcove C (gap x=-3 to 3, 3m deep)  |  S2: x 3 → 13.15
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <model name="S1"><static>true</static><pose>-8.075 -5 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>10.15 0.3 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>10.15 0.3 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- Alcove C -->
+    <model name="SC_lw"><static>true</static><pose>-3 -6.5 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.3 3.0 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.3 3.0 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="SC_bk"><static>true</static><pose>0 -8 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>6.0 0.3 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>6.0 0.3 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="SC_rw"><static>true</static><pose>3 -6.5 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.3 3.0 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.3 3.0 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="S2"><static>true</static><pose>8.075 -5 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>10.15 0.3 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>10.15 0.3 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         EAST WALL  x = 13
+         E1: y 9 → 20  |  Alcove D (gap y=3 to 9, 3m deep)  |  E2: y -5 → 3
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <model name="E1"><static>true</static><pose>13 14.5 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.3 11.0 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.3 11.0 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- Alcove D -->
+    <model name="ED_tw"><static>true</static><pose>14.5 9 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>3.0 0.3 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>3.0 0.3 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="ED_bk"><static>true</static><pose>16 6 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.3 6.0 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.3 6.0 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="ED_bw"><static>true</static><pose>14.5 3 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>3.0 0.3 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>3.0 0.3 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="E2"><static>true</static><pose>13 -1 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.3 8.0 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.3 8.0 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         WEST WALL  x = -13
+         W1: y 11 → 20  |  Alcove E (gap y=5 to 11, 3m deep)  |
+         W2: y 0 → 5    |  Alcove F (gap y=-5 to 0, 3m deep)   (S1 closes SW corner)
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <model name="W1"><static>true</static><pose>-13 15.5 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.3 9.0 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.3 9.0 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- Alcove E -->
+    <model name="WE_tw"><static>true</static><pose>-14.5 11 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>3.0 0.3 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>3.0 0.3 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="WE_bk"><static>true</static><pose>-16 8 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.3 6.0 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.3 6.0 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="WE_bw"><static>true</static><pose>-14.5 5 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>3.0 0.3 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>3.0 0.3 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="W2"><static>true</static><pose>-13 2.5 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.3 5.0 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.3 5.0 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <!-- Alcove F -->
+    <model name="WF_tw"><static>true</static><pose>-14.5 0 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>3.0 0.3 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>3.0 0.3 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="WF_bk"><static>true</static><pose>-16 -2.5 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.3 5.0 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.3 5.0 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="WF_bw"><static>true</static><pose>-14.5 -5 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>3.0 0.3 2.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>3.0 0.3 2.5</size></box></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material></visual>
+      </link>
+    </model>
+
+  </world>
+</sdf>
