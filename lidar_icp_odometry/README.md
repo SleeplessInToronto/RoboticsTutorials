@@ -359,7 +359,7 @@ Given source $\mathrm{P}$ and target $\mathrm{Q}$, find the rigid transform:
 
 $$
 \Delta\boldsymbol{T}^* = \arg\min_{\Delta\boldsymbol{R} \in SO(3),\, \Delta\boldsymbol{t} \in \mathbb{R}^3}
-\sum_{(\boldsymbol{p},\boldsymbol{q}) \in \mathrm{C}} d\!\left(\boldsymbol{q},\; \Delta\boldsymbol{R}\,\boldsymbol{p} + \Delta\boldsymbol{t}\right)^2
+\sum_{(\boldsymbol{p},\boldsymbol{q}) \in \mathrm{C}} d\!\left(\boldsymbol{q},\ \Delta\boldsymbol{R}\,\boldsymbol{p} + \Delta\boldsymbol{t}\right)^2
 $$
 
 where $\mathrm{C} = \{(\boldsymbol{p}, \boldsymbol{q}) \mid \boldsymbol{p} \in \mathrm{P},\, \boldsymbol{q} \in \mathrm{Q}\}$ is the correspondence set and $d(\cdot)$ is a distance metric. (eq. 1)
@@ -370,7 +370,7 @@ Three metrics are standard in LiDAR SLAM:
 
 | Metric | Distance $d(\boldsymbol{q}, \Delta\boldsymbol{R}\boldsymbol{p} + \Delta\boldsymbol{t})$ | Properties |
 |--------|---------|-----------|
-| **Point-to-point** | $\lVert\Delta\boldsymbol{R}\boldsymbol{p} + \Delta\boldsymbol{t} - \boldsymbol{q}\rVert_2$ | Simple; sensitive to noise on flat surfaces |
+| **Point-to-point** | $\Vert\Delta\boldsymbol{R}\boldsymbol{p} + \Delta\boldsymbol{t} - \boldsymbol{q}\Vert_2$ | Simple; sensitive to noise on flat surfaces |
 | **Point-to-line** | Distance from transformed $\boldsymbol{p}$ to line through $\boldsymbol{q}$ | Good for structured environments with linear features |
 | **Point-to-plane** | $\lvert\boldsymbol{n}^\top(\Delta\boldsymbol{R}\boldsymbol{p} + \Delta\boldsymbol{t} - \boldsymbol{q})\rvert$ | Fast convergence on planar surfaces; this implementation |
 
@@ -385,8 +385,8 @@ Because the correspondence set $\mathrm{C}$ depends on the current transform est
 the nearest neighbour under the current $\Delta\boldsymbol{T}$), and the optimal transform depends on $\mathrm{C}$,
 ICP alternates between the two steps until convergence:
 
-$$\mathrm{C}^k = \left\lbrace \left(\boldsymbol{p},\; \arg\min_{\boldsymbol{q}' \in \mathrm{Q}}
-\left\lVert\boldsymbol{p} - (\boldsymbol{R}^{k-1}\boldsymbol{q}' + \boldsymbol{t}^{k-1})\right\rVert_2 \right) \;\middle|\; \boldsymbol{p} \in \mathrm{P} \right\rbrace$$
+$$\mathrm{C}^k = \left\lbrace \left(\boldsymbol{p},\ \arg\min_{\boldsymbol{q}' \in \mathrm{Q}}
+\left\Vert\boldsymbol{p} - (\boldsymbol{R}^{k-1}\boldsymbol{q}' + \boldsymbol{t}^{k-1})\right\Vert_2 \right) \middle\vert\ \boldsymbol{p} \in \mathrm{P} \right\rbrace$$
 
 ---
 
@@ -528,7 +528,7 @@ tree.findNeighbors(result, p_transformed.data(), nanoflann::SearchParameters());
 
 ### 3.5 Point-to-Plane ICP — Linearised System
 
-**Why not point-to-point ICP?** Point-to-point ICP minimises $\sum_i \lVert\Delta\boldsymbol{R}\,\boldsymbol{p}_i + \Delta\boldsymbol{t} - \boldsymbol{q}_i\rVert^2$ and has a clean closed-form solution via SVD (the Kabsch algorithm). It is not used here for two reasons: (1) on walls and ground, many source points map to the same target plane, making the cross-covariance matrix nearly singular; (2) point-to-plane ICP constrains motion along the surface normal, breaking this degeneracy and converging significantly faster in practice (Chen & Medioni 1992 \[4\]).
+**Why not point-to-point ICP?** Point-to-point ICP minimises $\sum_i \Vert\Delta\boldsymbol{R}\,\boldsymbol{p}_i + \Delta\boldsymbol{t} - \boldsymbol{q}_i\Vert^2$ and has a clean closed-form solution via SVD (the Kabsch algorithm). It is not used here for two reasons: (1) on walls and ground, many source points map to the same target plane, making the cross-covariance matrix nearly singular; (2) point-to-plane ICP constrains motion along the surface normal, breaking this degeneracy and converging significantly faster in practice (Chen & Medioni 1992 \[4\]).
 
 ### Objective
 
@@ -564,12 +564,12 @@ $$r_i = \underbrace{(\boldsymbol{p}_i \times \boldsymbol{n}_i)^\top}_{\text{rota
 ### Linear system
 
 Stacking all $N$ residuals as $\boldsymbol{r} = \boldsymbol{A}\boldsymbol{\xi} - \boldsymbol{b}$ where
-$\boldsymbol{\xi} = [\Delta\boldsymbol{t};\, \boldsymbol{\theta}] \in \mathbb{R}^6$ (translation first,
+$\boldsymbol{\xi} = [\Delta\boldsymbol{t}; \boldsymbol{\theta}] \in \mathbb{R}^6$ (translation first,
 to match `Sophus::SE3d::exp()`):
 
 $$\boldsymbol{a}_i^\top = \begin{bmatrix} \boldsymbol{n}_i^\top & (\boldsymbol{p}_i \times \boldsymbol{n}_i)^\top \end{bmatrix} \in \mathbb{R}^6, \qquad b_i = \boldsymbol{n}_i^\top(\boldsymbol{q}_i - \boldsymbol{p}_i)$$
 
-The least-squares objective $\min_{\boldsymbol{\xi}} \lVert\boldsymbol{A}\boldsymbol{\xi} - \boldsymbol{b}\rVert^2$ gives the **normal equations**:
+The least-squares objective $\min_{\boldsymbol{\xi}} \Vert\boldsymbol{A}\boldsymbol{\xi} - \boldsymbol{b}\Vert^2$ gives the **normal equations**:
 
 $$(\boldsymbol{A}^\top\boldsymbol{A})\,\boldsymbol{\xi} = \boldsymbol{A}^\top\boldsymbol{b}$$
 
@@ -618,7 +618,7 @@ ICP stops when any of these conditions is met:
 
 | Condition | Test | Rationale |
 |-----------|------|-----------|
-| **Small increment** | $\lVert\boldsymbol{\xi}\rVert_2 < \varepsilon$ | Further iterations would move the pose by less than $\varepsilon$ |
+| **Small increment** | $\Vert\boldsymbol{\xi}\Vert_2 < \varepsilon$ | Further iterations would move the pose by less than $\varepsilon$ |
 | **Max iterations** | `iter >= max_iterations` | Safety ceiling; prevents infinite loop on degenerate geometry |
 | **No correspondences** | `correspondences.empty()` | Source and target clouds have no overlap — ICP cannot proceed |
 
@@ -719,7 +719,7 @@ s = \left\lfloor \frac{\arctan_2(p_y, p_x) + \pi}{2\pi} \cdot N_s \right\rfloor$
 The cell value $\text{SC}[r][s]$ records the **maximum height** (z-coordinate) of all points
 falling in that bin:
 
-$$\text{SC}[r][s] = \max\bigl\lbrace p_z \;\big|\; \text{point} \; \boldsymbol{p} \text{ falls in ring } r, \text{ sector } s \bigr\rbrace$$
+$$\text{SC}[r][s] = \max\bigl\lbrace p_z \mid \text{point}\ \boldsymbol{p} \text{ falls in ring } r, \text{ sector } s \bigr\rbrace$$
 
 Empty cells default to 0. The resulting $20 \times 60$ matrix is the Scan Context descriptor.
 
@@ -765,9 +765,9 @@ shifts all columns of the descriptor by $\lfloor \psi \cdot N_s / (2\pi) \rfloor
 The **column-shifted cosine distance** finds the shift $s^*$ that best aligns the two
 descriptors and reports the minimum distance:
 
-$$d_\text{SC}(\boldsymbol{A}, \boldsymbol{B}) = \min_{s \in \{0,\ldots,N_s-1\}} \;\frac{1}{N_r^\text{valid}(s)} \sum_{r=0}^{N_r-1} \Bigl(1 - \cos\bigl(\boldsymbol{A}[r],\; \text{shift}(\boldsymbol{B},s)[r]\bigr)\Bigr)$$
+$$d_\text{SC}(\boldsymbol{A}, \boldsymbol{B}) = \min_{s \in \{0,\ldots,N_s-1\}} \frac{1}{N_r^\text{valid}(s)} \sum_{r=0}^{N_r-1} \Bigl(1 - \cos\bigl(\boldsymbol{A}[r],\ \text{shift}(\boldsymbol{B},s)[r]\bigr)\Bigr)$$
 
-where $\cos(\boldsymbol{u}, \boldsymbol{v}) = \boldsymbol{u}^\top \boldsymbol{v} / (\lVert\boldsymbol{u}\rVert \lVert\boldsymbol{v}\rVert)$ is the
+where $\cos(\boldsymbol{u}, \boldsymbol{v}) = \boldsymbol{u}^\top \boldsymbol{v} / (\Vert\boldsymbol{u}\Vert \Vert\boldsymbol{v}\Vert)$ is the
 cosine similarity between two row vectors, and $N_r^\text{valid}(s)$ counts rows where at
 least one of the two vectors is non-zero. Values range in $[0, 1]$: $0$ = identical, $1$ = orthogonal.
 
@@ -925,7 +925,7 @@ function summed over all edges in the graph is:
 $$
 \mathcal{C}(\boldsymbol{T}_0, \ldots, \boldsymbol{T}_{n-1})
 = \frac{1}{2} \sum_{(i,j) \in \mathcal{E}}
-\boldsymbol{e}_{ij}^\top \; \boldsymbol{\Omega}_{ij} \; \boldsymbol{e}_{ij},
+\boldsymbol{e}_{ij}^\top \boldsymbol{\Omega}_{ij} \boldsymbol{e}_{ij},
 \qquad \boldsymbol{e}_{ij} = \text{Log}(\boldsymbol{T}_{ij}^{-1} \boldsymbol{T}_i^{-1} \boldsymbol{T}_j) \in \mathbb{R}^6
 $$
 
@@ -1004,11 +1004,11 @@ the entire trajectory by any rigid motion leaves all residuals unchanged — $\b
 singular without a constraint that fixes the global reference frame. Adding
 $10^{12} \cdot \boldsymbol{I}_6$ to node 0's block is not an existing residual; it is a penalty
 for moving node 0. Right now that cost is zero. Any nudge $\delta\boldsymbol{\xi}_0 \neq \boldsymbol{0}$
-would increase it by $10^{12} \cdot \lVert\delta\boldsymbol{\xi}_0\rVert^2$ — far more than any loop closure
+would increase it by $10^{12} \cdot \Vert\delta\boldsymbol{\xi}_0\Vert^2$ — far more than any loop closure
 saving could recover — so the optimiser leaves node 0 frozen and routes all corrections through
 the remaining nodes.
 
-The loop repeats until $\lVert\boldsymbol{\delta}\rVert_\infty < \varepsilon_\text{PGO}$ (default $10^{-4}$) or
+The loop repeats until $\Vert\boldsymbol{\delta}\Vert_\infty < \varepsilon_\text{PGO}$ (default $10^{-4}$) or
 `max_iterations` (default 20) is reached. Each iteration is $O(n + |\mathcal{E}|)$ in the
 accumulation phase and $O(n^3)$ in the LDLT solve (dense). For our classroom scenario of
 $n \approx 50$–100 nodes this is negligible; production systems use sparse solvers (g2o, GTSAM).
@@ -1389,7 +1389,7 @@ $$\boldsymbol{n}_i^\top \boldsymbol{\theta}^\wedge \boldsymbol{p}_i = (\boldsymb
 
 ### Assembling row $i$ of $\boldsymbol{A}$
 
-With $\boldsymbol{\xi} = [\Delta\boldsymbol{t};\, \boldsymbol{\theta}]$ (translation first — Sophus ordering):
+With $\boldsymbol{\xi} = [\Delta\boldsymbol{t}; \boldsymbol{\theta}]$ (translation first — Sophus ordering):
 
 $$r_i = \underbrace{\begin{bmatrix} \boldsymbol{n}_i^\top & (\boldsymbol{p}_i \times \boldsymbol{n}_i)^\top \end{bmatrix}}_{\boldsymbol{a}_i^\top}\,\boldsymbol{\xi} - b_i, \qquad b_i = \boldsymbol{n}_i^\top (\boldsymbol{q}_i - \boldsymbol{p}_i)$$
 
@@ -1418,7 +1418,7 @@ provide normal diversity in all three dimensions.
 - `xi.tail<3>()` = rotation $\boldsymbol{\theta}$
 
 Our $\boldsymbol{A}$ row $[\boldsymbol{n}_i^\top,\, (\boldsymbol{p}_i\times\boldsymbol{n}_i)^\top]$ with
-$\boldsymbol{\xi} = [\Delta\boldsymbol{t};\,\boldsymbol{\theta}]$ matches this ordering exactly.
+$\boldsymbol{\xi} = [\Delta\boldsymbol{t}; \boldsymbol{\theta}]$ matches this ordering exactly.
 
 ---
 
@@ -1549,13 +1549,15 @@ tangent vector in the local frame of $\boldsymbol{T}$.
 
 ### Derivation in Sophus translation-first ordering
 
-Let $\boldsymbol{T} = (\boldsymbol{R}, \boldsymbol{t})$ and $\boldsymbol{\xi} = [\boldsymbol{\rho};\, \boldsymbol{\theta}]$ (translation first).
+Let $\boldsymbol{T} = (\boldsymbol{R}, \boldsymbol{t})$ and $\boldsymbol{\xi} = [\boldsymbol{\rho}; \boldsymbol{\theta}]$ (translation first).
 
 **For infinitesimal $\boldsymbol{\xi}$:**
 
 $$
-\text{Exp}(\boldsymbol{\xi}) \approx \begin{bmatrix} \boldsymbol{I} + \boldsymbol{\theta}^\wedge & \boldsymbol{\rho} \\ \boldsymbol{0}^\top & 1 \end{bmatrix}, \qquad
-\boldsymbol{T} = \begin{bmatrix} \boldsymbol{R} & \boldsymbol{t} \\ \boldsymbol{0}^\top & 1 \end{bmatrix}, \qquad
+\text{Exp}(\boldsymbol{\xi}) \approx \begin{bmatrix} \boldsymbol{I} + \boldsymbol{\theta}^\wedge & \boldsymbol{\rho} \\ \boldsymbol{0}^\top & 1 \end{bmatrix},
+\quad
+\boldsymbol{T} = \begin{bmatrix} \boldsymbol{R} & \boldsymbol{t} \\ \boldsymbol{0}^\top & 1 \end{bmatrix},
+\quad
 \boldsymbol{T}^{-1} = \begin{bmatrix} \boldsymbol{R}^\top & -\boldsymbol{R}^\top\boldsymbol{t} \\ \boldsymbol{0}^\top & 1 \end{bmatrix}
 $$
 
@@ -1563,16 +1565,22 @@ Compute the conjugation:
 
 $$
 \boldsymbol{T} \cdot \text{Exp}(\boldsymbol{\xi}) \cdot \boldsymbol{T}^{-1}
-\approx \begin{bmatrix} \boldsymbol{I} + \boldsymbol{R}\boldsymbol{\theta}^\wedge\boldsymbol{R}^\top & \boldsymbol{R}\boldsymbol{\rho} + \boldsymbol{t}^\wedge\boldsymbol{R}\boldsymbol{\theta} \\ \boldsymbol{0}^\top & 1 \end{bmatrix}
+\approx \begin{bmatrix}
+\boldsymbol{I} + \boldsymbol{R}\boldsymbol{\theta}^\wedge\boldsymbol{R}^\top & \boldsymbol{R}\boldsymbol{\rho} + \boldsymbol{t}^\wedge\boldsymbol{R}\boldsymbol{\theta} \\
+\boldsymbol{0}^\top & 1
+\end{bmatrix}
 $$
 
 Using the identity $\boldsymbol{R}\boldsymbol{\theta}^\wedge\boldsymbol{R}^\top = (\boldsymbol{R}\boldsymbol{\theta})^\wedge$, this equals
-$\text{Exp}(\boldsymbol{\xi}')$ with $\boldsymbol{\xi}' = [\boldsymbol{R}\boldsymbol{\rho} + \boldsymbol{t}^\wedge\boldsymbol{R}\boldsymbol{\theta};\, \boldsymbol{R}\boldsymbol{\theta}]$.
+$\text{Exp}(\boldsymbol{\xi}')$ with $\boldsymbol{\xi}' = [\boldsymbol{R}\boldsymbol{\rho} + \boldsymbol{t}^\wedge\boldsymbol{R}\boldsymbol{\theta}; \boldsymbol{R}\boldsymbol{\theta}]$.
 
-Reading off the $6\times6$ matrix that maps $[\boldsymbol{\rho};\,\boldsymbol{\theta}]$ to $[\boldsymbol{R}\boldsymbol{\rho} + \boldsymbol{t}^\wedge\boldsymbol{R}\boldsymbol{\theta};\, \boldsymbol{R}\boldsymbol{\theta}]$:
+Reading off the $6\times6$ matrix that maps $[\boldsymbol{\rho}; \boldsymbol{\theta}]$ to $[\boldsymbol{R}\boldsymbol{\rho} + \boldsymbol{t}^\wedge\boldsymbol{R}\boldsymbol{\theta}; \boldsymbol{R}\boldsymbol{\theta}]$:
 
 $$
-\text{Adj}(\boldsymbol{T}) = \begin{bmatrix} \boldsymbol{R} & \boldsymbol{t}^\wedge\boldsymbol{R} \\ \boldsymbol{0} & \boldsymbol{R} \end{bmatrix}
+\text{Adj}(\boldsymbol{T}) = \begin{bmatrix}
+\boldsymbol{R} & \boldsymbol{t}^\wedge\boldsymbol{R} \\
+\boldsymbol{0} & \boldsymbol{R}
+\end{bmatrix}
 $$
 
 ### Numerical check
@@ -1582,7 +1590,10 @@ For $\boldsymbol{T} = \boldsymbol{I}$: $\text{Adj}(\boldsymbol{I}) = \boldsymbol
 For a pure translation $\boldsymbol{T} = (\boldsymbol{I}, \boldsymbol{t})$:
 
 $$
-\text{Adj}(\boldsymbol{T}) = \begin{bmatrix} \boldsymbol{I} & \boldsymbol{t}^\wedge \\ \boldsymbol{0} & \boldsymbol{I} \end{bmatrix}
+\text{Adj}(\boldsymbol{T}) = \begin{bmatrix}
+\boldsymbol{I} & \boldsymbol{t}^\wedge \\
+\boldsymbol{0} & \boldsymbol{I}
+\end{bmatrix}
 $$
 
 This confirms the coupling between rotation of the coordinate frame and translation in the
@@ -1618,7 +1629,7 @@ tangent vector by $\text{Adj}(\boldsymbol{A}^{-1})$.
 **Step 1.** Apply a right perturbation $\boldsymbol{\varepsilon}_j \in \mathbb{R}^6$ to node $j$ only
 ($\boldsymbol{T}_i$ is held fixed):
 
-$$\boldsymbol{T}_j \;\to\; \boldsymbol{T}_j \cdot \text{Exp}(\boldsymbol{\varepsilon}_j)$$
+$$\boldsymbol{T}_j \to \boldsymbol{T}_j \cdot \text{Exp}(\boldsymbol{\varepsilon}_j)$$
 
 **Step 2.** Substitute into the residual:
 
@@ -1649,7 +1660,7 @@ a one-for-one relationship, hence the identity.
 **Step 1.** Apply a right perturbation $\boldsymbol{\varepsilon}_i \in \mathbb{R}^6$ to node $i$ only
 ($\boldsymbol{T}_j$ is held fixed):
 
-$$\boldsymbol{T}_i \;\to\; \boldsymbol{T}_i \cdot \text{Exp}(\boldsymbol{\varepsilon}_i)$$
+$$\boldsymbol{T}_i \to \boldsymbol{T}_i \cdot \text{Exp}(\boldsymbol{\varepsilon}_i)$$
 
 **Step 2.** Invert the perturbed $\boldsymbol{T}_i$ using
 $(\boldsymbol{T}_i \cdot \text{Exp}(\boldsymbol{\varepsilon}_i))^{-1} = \text{Exp}(-\boldsymbol{\varepsilon}_i) \cdot \boldsymbol{T}_i^{-1}$
