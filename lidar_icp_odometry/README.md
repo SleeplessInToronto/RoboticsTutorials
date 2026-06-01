@@ -366,7 +366,7 @@ Three metrics are standard in LiDAR SLAM:
 
 | Metric | Distance $d(\boldsymbol{q}, \Delta\boldsymbol{R}\boldsymbol{p} + \Delta\boldsymbol{t})$ | Properties |
 |--------|---------|-----------|
-| **Point-to-point** | $\|\Delta\boldsymbol{R}\boldsymbol{p} + \Delta\boldsymbol{t} - \boldsymbol{q}\|_2$ | Simple; sensitive to noise on flat surfaces |
+| **Point-to-point** | $\lVert\Delta\boldsymbol{R}\boldsymbol{p} + \Delta\boldsymbol{t} - \boldsymbol{q}\rVert_2$ | Simple; sensitive to noise on flat surfaces |
 | **Point-to-line** | Distance from transformed $\boldsymbol{p}$ to line through $\boldsymbol{q}$ | Good for structured environments with linear features |
 | **Point-to-plane** | $\lvert\boldsymbol{n}^\top(\Delta\boldsymbol{R}\boldsymbol{p} + \Delta\boldsymbol{t} - \boldsymbol{q})\rvert$ | Fast convergence on planar surfaces; this implementation |
 
@@ -381,8 +381,8 @@ Because the correspondence set $\mathrm{C}$ depends on the current transform est
 the nearest neighbour under the current $\Delta\boldsymbol{T}$), and the optimal transform depends on $\mathrm{C}$,
 ICP alternates between the two steps until convergence:
 
-$$\mathrm{C}^k = \left\{ \left(\boldsymbol{p},\; \arg\min_{\boldsymbol{q}' \in \mathrm{Q}}
-\|\boldsymbol{p} - (\boldsymbol{R}^{k-1}\boldsymbol{q}' + \boldsymbol{t}^{k-1})\|_2 \right) \;\middle|\; \boldsymbol{p} \in \mathrm{P} \right\}$$
+$$\mathrm{C}^k = \left\lbrace \left(\boldsymbol{p},\; \arg\min_{\boldsymbol{q}' \in \mathrm{Q}}
+\left\lVert\boldsymbol{p} - (\boldsymbol{R}^{k-1}\boldsymbol{q}' + \boldsymbol{t}^{k-1})\right\rVert_2 \right) \;\middle|\; \boldsymbol{p} \in \mathrm{P} \right\rbrace$$
 
 ---
 
@@ -524,7 +524,7 @@ tree.findNeighbors(result, p_transformed.data(), nanoflann::SearchParameters());
 
 ### 3.5 Point-to-Plane ICP — Linearised System
 
-**Why not point-to-point ICP?** Point-to-point ICP minimises $\sum_i \|\Delta\boldsymbol{R}\,\boldsymbol{p}_i + \Delta\boldsymbol{t} - \boldsymbol{q}_i\|^2$ and has a clean closed-form solution via SVD (the Kabsch algorithm). It is not used here for two reasons: (1) on walls and ground, many source points map to the same target plane, making the cross-covariance matrix nearly singular; (2) point-to-plane ICP constrains motion along the surface normal, breaking this degeneracy and converging significantly faster in practice (Chen & Medioni 1992 \[4\]).
+**Why not point-to-point ICP?** Point-to-point ICP minimises $\sum_i \lVert\Delta\boldsymbol{R}\,\boldsymbol{p}_i + \Delta\boldsymbol{t} - \boldsymbol{q}_i\rVert^2$ and has a clean closed-form solution via SVD (the Kabsch algorithm). It is not used here for two reasons: (1) on walls and ground, many source points map to the same target plane, making the cross-covariance matrix nearly singular; (2) point-to-plane ICP constrains motion along the surface normal, breaking this degeneracy and converging significantly faster in practice (Chen & Medioni 1992 \[4\]).
 
 ### Objective
 
@@ -565,7 +565,7 @@ to match `Sophus::SE3d::exp()`):
 
 $$\boldsymbol{a}_i^\top = \begin{bmatrix} \boldsymbol{n}_i^\top & (\boldsymbol{p}_i \times \boldsymbol{n}_i)^\top \end{bmatrix} \in \mathbb{R}^6, \qquad b_i = \boldsymbol{n}_i^\top(\boldsymbol{q}_i - \boldsymbol{p}_i)$$
 
-The least-squares objective $\min_{\boldsymbol{\xi}} \|\boldsymbol{A}\boldsymbol{\xi} - \boldsymbol{b}\|^2$ gives the **normal equations**:
+The least-squares objective $\min_{\boldsymbol{\xi}} \lVert\boldsymbol{A}\boldsymbol{\xi} - \boldsymbol{b}\rVert^2$ gives the **normal equations**:
 
 $$(\boldsymbol{A}^\top\boldsymbol{A})\,\boldsymbol{\xi} = \boldsymbol{A}^\top\boldsymbol{b}$$
 
@@ -614,7 +614,7 @@ ICP stops when any of these conditions is met:
 
 | Condition | Test | Rationale |
 |-----------|------|-----------|
-| **Small increment** | $\|\boldsymbol{\xi}\|_2 < \varepsilon$ | Further iterations would move the pose by less than $\varepsilon$ |
+| **Small increment** | $\lVert\boldsymbol{\xi}\rVert_2 < \varepsilon$ | Further iterations would move the pose by less than $\varepsilon$ |
 | **Max iterations** | `iter >= max_iterations` | Safety ceiling; prevents infinite loop on degenerate geometry |
 | **No correspondences** | `correspondences.empty()` | Source and target clouds have no overlap — ICP cannot proceed |
 
@@ -763,7 +763,7 @@ descriptors and reports the minimum distance:
 
 $$d_\text{SC}(\boldsymbol{A}, \boldsymbol{B}) = \min_{s \in \{0,\ldots,N_s-1\}} \;\frac{1}{N_r^\text{valid}(s)} \sum_{r=0}^{N_r-1} \Bigl(1 - \cos\bigl(\boldsymbol{A}[r],\; \text{shift}(\boldsymbol{B},s)[r]\bigr)\Bigr)$$
 
-where $\cos(\boldsymbol{u}, \boldsymbol{v}) = \boldsymbol{u}^\top \boldsymbol{v} / (\|\boldsymbol{u}\| \|\boldsymbol{v}\|)$ is the
+where $\cos(\boldsymbol{u}, \boldsymbol{v}) = \boldsymbol{u}^\top \boldsymbol{v} / (\lVert\boldsymbol{u}\rVert \lVert\boldsymbol{v}\rVert)$ is the
 cosine similarity between two row vectors, and $N_r^\text{valid}(s)$ counts rows where at
 least one of the two vectors is non-zero. Values range in $[0, 1]$: $0$ = identical, $1$ = orthogonal.
 
@@ -991,11 +991,11 @@ the entire trajectory by any rigid motion leaves all residuals unchanged — $\b
 singular without a constraint that fixes the global reference frame. Adding
 $10^{12} \cdot \boldsymbol{I}_6$ to node 0's block is not an existing residual; it is a penalty
 for moving node 0. Right now that cost is zero. Any nudge $\delta\boldsymbol{\xi}_0 \neq \boldsymbol{0}$
-would increase it by $10^{12} \cdot \|\delta\boldsymbol{\xi}_0\|^2$ — far more than any loop closure
+would increase it by $10^{12} \cdot \lVert\delta\boldsymbol{\xi}_0\rVert^2$ — far more than any loop closure
 saving could recover — so the optimiser leaves node 0 frozen and routes all corrections through
 the remaining nodes.
 
-The loop repeats until $\|\boldsymbol{\delta}\|_\infty < \varepsilon_\text{PGO}$ (default $10^{-4}$) or
+The loop repeats until $\lVert\boldsymbol{\delta}\rVert_\infty < \varepsilon_\text{PGO}$ (default $10^{-4}$) or
 `max_iterations` (default 20) is reached. Each iteration is $O(n + |\mathcal{E}|)$ in the
 accumulation phase and $O(n^3)$ in the LDLT solve (dense). For our classroom scenario of
 $n \approx 50$–100 nodes this is negligible; production systems use sparse solvers (g2o, GTSAM).
