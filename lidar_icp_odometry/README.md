@@ -336,7 +336,11 @@ $\boldsymbol{a} \in \mathbb{R}^3$ to its skew-symmetric matrix, implementing the
 $\boldsymbol{a}^\wedge \boldsymbol{b} = \boldsymbol{a} \times \boldsymbol{b}$.
 
 $$
-\boldsymbol{a}^\wedge = \begin{bmatrix} 0 & -a_z & a_y \\ a_z & 0 & -a_x \\ -a_y & a_x & 0 \end{bmatrix}
+\boldsymbol{a}^\wedge = \begin{bmatrix}
+0 & -a_z & a_y \\
+a_z & 0 & -a_x \\
+-a_y & a_x & 0
+\end{bmatrix}
 $$
 
 The inverse operator $(\cdot)^\vee$ extracts the vector back from a skew-symmetric matrix.
@@ -948,7 +952,14 @@ These Jacobians are assembled into the $6n \times 6n$ normal equations — one 6
 node, non-zero only where nodes share an edge:
 
 $$
-\boldsymbol{H} = \sum_{(i,j) \in \mathcal{E}} \begin{bmatrix} \boldsymbol{J}_i^\top \boldsymbol{\Omega}_{ij} \boldsymbol{J}_i & \boldsymbol{J}_i^\top \boldsymbol{\Omega}_{ij} \boldsymbol{J}_j \\ \boldsymbol{J}_j^\top \boldsymbol{\Omega}_{ij} \boldsymbol{J}_i & \boldsymbol{J}_j^\top \boldsymbol{\Omega}_{ij} \boldsymbol{J}_j \end{bmatrix}_{(i,j)}, \qquad \boldsymbol{b} = \sum_{(i,j) \in \mathcal{E}} \begin{bmatrix} \boldsymbol{J}_i^\top \boldsymbol{\Omega}_{ij} \boldsymbol{e}_{ij} \\ \boldsymbol{J}_j^\top \boldsymbol{\Omega}_{ij} \boldsymbol{e}_{ij} \end{bmatrix}_{(i,j)}
+\boldsymbol{H} = \sum_{(i,j) \in \mathcal{E}} \begin{bmatrix}
+\boldsymbol{J}_i^\top \boldsymbol{\Omega}_{ij} \boldsymbol{J}_i & \boldsymbol{J}_i^\top \boldsymbol{\Omega}_{ij} \boldsymbol{J}_j \\
+\boldsymbol{J}_j^\top \boldsymbol{\Omega}_{ij} \boldsymbol{J}_i & \boldsymbol{J}_j^\top \boldsymbol{\Omega}_{ij} \boldsymbol{J}_j
+\end{bmatrix}_{(i,j)}, \qquad
+\boldsymbol{b} = \sum_{(i,j) \in \mathcal{E}} \begin{bmatrix}
+\boldsymbol{J}_i^\top \boldsymbol{\Omega}_{ij} \boldsymbol{e}_{ij} \\
+\boldsymbol{J}_j^\top \boldsymbol{\Omega}_{ij} \boldsymbol{e}_{ij}
+\end{bmatrix}_{(i,j)}
 $$
 
 $\boldsymbol{H}$ is symmetric positive semi-definite by construction (each term
@@ -1542,21 +1553,27 @@ Let $\boldsymbol{T} = (\boldsymbol{R}, \boldsymbol{t})$ and $\boldsymbol{\xi} = 
 
 **For infinitesimal $\boldsymbol{\xi}$:**
 
-$$\text{Exp}(\boldsymbol{\xi}) \approx \begin{bmatrix} \boldsymbol{I} + \boldsymbol{\theta}^\wedge & \boldsymbol{\rho} \\ \boldsymbol{0}^\top & 1 \end{bmatrix}, \qquad
+$$
+\text{Exp}(\boldsymbol{\xi}) \approx \begin{bmatrix} \boldsymbol{I} + \boldsymbol{\theta}^\wedge & \boldsymbol{\rho} \\ \boldsymbol{0}^\top & 1 \end{bmatrix}, \qquad
 \boldsymbol{T} = \begin{bmatrix} \boldsymbol{R} & \boldsymbol{t} \\ \boldsymbol{0}^\top & 1 \end{bmatrix}, \qquad
-\boldsymbol{T}^{-1} = \begin{bmatrix} \boldsymbol{R}^\top & -\boldsymbol{R}^\top\boldsymbol{t} \\ \boldsymbol{0}^\top & 1 \end{bmatrix}$$
+\boldsymbol{T}^{-1} = \begin{bmatrix} \boldsymbol{R}^\top & -\boldsymbol{R}^\top\boldsymbol{t} \\ \boldsymbol{0}^\top & 1 \end{bmatrix}
+$$
 
 Compute the conjugation:
 
-$$\boldsymbol{T} \cdot \text{Exp}(\boldsymbol{\xi}) \cdot \boldsymbol{T}^{-1}
-\approx \begin{bmatrix} \boldsymbol{I} + \boldsymbol{R}\boldsymbol{\theta}^\wedge\boldsymbol{R}^\top & \boldsymbol{R}\boldsymbol{\rho} + \boldsymbol{t}^\wedge\boldsymbol{R}\boldsymbol{\theta} \\ \boldsymbol{0}^\top & 1 \end{bmatrix}$$
+$$
+\boldsymbol{T} \cdot \text{Exp}(\boldsymbol{\xi}) \cdot \boldsymbol{T}^{-1}
+\approx \begin{bmatrix} \boldsymbol{I} + \boldsymbol{R}\boldsymbol{\theta}^\wedge\boldsymbol{R}^\top & \boldsymbol{R}\boldsymbol{\rho} + \boldsymbol{t}^\wedge\boldsymbol{R}\boldsymbol{\theta} \\ \boldsymbol{0}^\top & 1 \end{bmatrix}
+$$
 
 Using the identity $\boldsymbol{R}\boldsymbol{\theta}^\wedge\boldsymbol{R}^\top = (\boldsymbol{R}\boldsymbol{\theta})^\wedge$, this equals
 $\text{Exp}(\boldsymbol{\xi}')$ with $\boldsymbol{\xi}' = [\boldsymbol{R}\boldsymbol{\rho} + \boldsymbol{t}^\wedge\boldsymbol{R}\boldsymbol{\theta};\, \boldsymbol{R}\boldsymbol{\theta}]$.
 
 Reading off the $6\times6$ matrix that maps $[\boldsymbol{\rho};\,\boldsymbol{\theta}]$ to $[\boldsymbol{R}\boldsymbol{\rho} + \boldsymbol{t}^\wedge\boldsymbol{R}\boldsymbol{\theta};\, \boldsymbol{R}\boldsymbol{\theta}]$:
 
-$$\text{Adj}(\boldsymbol{T}) = \begin{bmatrix} \boldsymbol{R} & \boldsymbol{t}^\wedge\boldsymbol{R} \\ \boldsymbol{0} & \boldsymbol{R} \end{bmatrix}$$
+$$
+\text{Adj}(\boldsymbol{T}) = \begin{bmatrix} \boldsymbol{R} & \boldsymbol{t}^\wedge\boldsymbol{R} \\ \boldsymbol{0} & \boldsymbol{R} \end{bmatrix}
+$$
 
 ### Numerical check
 
@@ -1564,7 +1581,9 @@ For $\boldsymbol{T} = \boldsymbol{I}$: $\text{Adj}(\boldsymbol{I}) = \boldsymbol
 
 For a pure translation $\boldsymbol{T} = (\boldsymbol{I}, \boldsymbol{t})$:
 
-$$\text{Adj}(\boldsymbol{T}) = \begin{bmatrix} \boldsymbol{I} & \boldsymbol{t}^\wedge \\ \boldsymbol{0} & \boldsymbol{I} \end{bmatrix}$$
+$$
+\text{Adj}(\boldsymbol{T}) = \begin{bmatrix} \boldsymbol{I} & \boldsymbol{t}^\wedge \\ \boldsymbol{0} & \boldsymbol{I} \end{bmatrix}
+$$
 
 This confirms the coupling between rotation of the coordinate frame and translation in the
 adjoint: a rotation $\boldsymbol{\theta}$ applied at a point displaced by $\boldsymbol{t}$ induces an
