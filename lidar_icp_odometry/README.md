@@ -235,7 +235,10 @@ what PGO resolves.
 
 **The problem PGO needs to solve:**
 
-The residual for any edge is $\boldsymbol{e}_{ij} = \text{Log}(\boldsymbol{T}_{ij}^{-1} \boldsymbol{T}_i^{-1} \boldsymbol{T}_j)$,
+The residual for any edge is:
+
+$$\boldsymbol{e}_{ij} = \text{Log}(\boldsymbol{T}_{ij}^{-1} \boldsymbol{T}_i^{-1} \boldsymbol{T}_j)$$
+
 where $\boldsymbol{T}_{ij}$ is the fixed measured transform stored on the edge and
 $\boldsymbol{T}_i^{-1} \boldsymbol{T}_j$ is the predicted relative transform recomputed from the
 current node poses each iteration.
@@ -919,7 +922,7 @@ $$\mathcal{C}(\boldsymbol{T}_0, \ldots, \boldsymbol{T}_{n-1})
 = \frac{1}{2} \sum_{(i,j) \in \mathcal{E}}
 \boldsymbol{e}_{ij}^\top \; \boldsymbol{\Omega}_{ij} \; \boldsymbol{e}_{ij}$$
 
-where $\boldsymbol{e}_{ij} = \text{Log}(\boldsymbol{T}_{ij}^{-1} \boldsymbol{T}_i^{-1} \boldsymbol{T}_j) \in \mathbb{R}^6$
+where $\boldsymbol{e}_{ij} = \text{Log}(\boldsymbol{T}_{ij}^{-1} \boldsymbol{T}\_i^{-1} \boldsymbol{T}\_j) \in \mathbb{R}^6$
 is the residual 6-vector for edge $(i \to j)$, and $\boldsymbol{\Omega}_{ij}$ is the $6 \times 6$
 information (trust) matrix. Higher $\boldsymbol{\Omega}_{ij}$ means that edge contributes more to
 the total cost and PGO works harder to reduce its residual.
@@ -1600,7 +1603,7 @@ $$\boldsymbol{T}_j \;\to\; \boldsymbol{T}_j \cdot \text{Exp}(\boldsymbol{\vareps
 
 $$\boldsymbol{e}_{ij}' = \text{Log}\!\bigl(\boldsymbol{T}_{ij}^{-1} \cdot \boldsymbol{T}_i^{-1} \cdot \boldsymbol{T}_j \cdot \text{Exp}(\boldsymbol{\varepsilon}_j)\bigr)$$
 
-Recognise that $\boldsymbol{T}_{ij}^{-1} \cdot \boldsymbol{T}_i^{-1} \cdot \boldsymbol{T}_j = \boldsymbol{T}_{ij}^\text{err}$
+Recognise that $\boldsymbol{T}_{ij}^{-1} \cdot \boldsymbol{T}\_i^{-1} \cdot \boldsymbol{T}\_j = \boldsymbol{T}_{ij}^\text{err}$
 (the error pose, equal to $\text{Exp}(\boldsymbol{e}_{ij})$ by definition of Log):
 
 $$\boldsymbol{e}_{ij}' = \text{Log}\!\bigl(\text{Exp}(\boldsymbol{e}_{ij}) \cdot \text{Exp}(\boldsymbol{\varepsilon}_j)\bigr)$$
