@@ -918,15 +918,14 @@ Stage 3 between the two keyframe point clouds. Information: $\boldsymbol{\Omega}
 Every edge's residual is squared and weighted by its information matrix. The formal cost
 function summed over all edges in the graph is:
 
-$$\mathcal{C}(\boldsymbol{T}_0, \ldots, \boldsymbol{T}_{n-1})
+$$
+\mathcal{C}(\boldsymbol{T}_0, \ldots, \boldsymbol{T}_{n-1})
 = \frac{1}{2} \sum_{(i,j) \in \mathcal{E}}
-\boldsymbol{e}_{ij}^\top \; \boldsymbol{\Omega}_{ij} \; \boldsymbol{e}_{ij}$$
+\boldsymbol{e}_{ij}^\top \; \boldsymbol{\Omega}_{ij} \; \boldsymbol{e}_{ij},
+\qquad \boldsymbol{e}_{ij} = \text{Log}(\boldsymbol{T}_{ij}^{-1} \boldsymbol{T}_i^{-1} \boldsymbol{T}_j) \in \mathbb{R}^6
+$$
 
-where
-
-$$\boldsymbol{e}_{ij} = \text{Log}(\boldsymbol{T}_{ij}^{-1} \boldsymbol{T}_i^{-1} \boldsymbol{T}_j) \in \mathbb{R}^6$$
-
-is the residual 6-vector for edge $(i \to j)$, and $\boldsymbol{\Omega}_{ij}$ is the $6 \times 6$
+where $\boldsymbol{e}_{ij}$ is the residual 6-vector for edge $(i \to j)$, and $\boldsymbol{\Omega}_{ij}$ is the $6 \times 6$
 information (trust) matrix. Higher $\boldsymbol{\Omega}_{ij}$ means that edge contributes more to
 the total cost and PGO works harder to reduce its residual.
 
