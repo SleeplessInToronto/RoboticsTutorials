@@ -353,10 +353,9 @@ Given source $\mathrm{P}$ and target $\mathrm{Q}$, find the rigid transform:
 $$
 \Delta\boldsymbol{T}^* = \arg\min_{\Delta\boldsymbol{R} \in SO(3),\, \Delta\boldsymbol{t} \in \mathbb{R}^3}
 \sum_{(\boldsymbol{p},\boldsymbol{q}) \in \mathrm{C}} d\!\left(\boldsymbol{q},\; \Delta\boldsymbol{R}\,\boldsymbol{p} + \Delta\boldsymbol{t}\right)^2
-\tag{1}
 $$
 
-where $\mathrm{C} = \{(\boldsymbol{p}, \boldsymbol{q}) \mid \boldsymbol{p} \in \mathrm{P},\, \boldsymbol{q} \in \mathrm{Q}\}$ is the correspondence set and $d(\cdot)$ is a distance metric.
+where $\mathrm{C} = \{(\boldsymbol{p}, \boldsymbol{q}) \mid \boldsymbol{p} \in \mathrm{P},\, \boldsymbol{q} \in \mathrm{Q}\}$ is the correspondence set and $d(\cdot)$ is a distance metric. (eq. 1)
 
 ### Distance metrics (SLAM Handbook §8.2.1.1, Figure 8.3)
 
@@ -380,8 +379,7 @@ the nearest neighbour under the current $\Delta\boldsymbol{T}$), and the optimal
 ICP alternates between the two steps until convergence:
 
 $$\mathrm{C}^k = \left\{ \left(\boldsymbol{p},\; \arg\min_{\boldsymbol{q}' \in \mathrm{Q}}
-\|\boldsymbol{p} - (\boldsymbol{R}^{k-1}\boldsymbol{q}' + \boldsymbol{t}^{k-1})\|_2 \right) \;\middle|\; \boldsymbol{p} \in \mathrm{P} \right\}
-\tag{2}$$
+\|\boldsymbol{p} - (\boldsymbol{R}^{k-1}\boldsymbol{q}' + \boldsymbol{t}^{k-1})\|_2 \right) \;\middle|\; \boldsymbol{p} \in \mathrm{P} \right\}$$
 
 ---
 
@@ -675,7 +673,7 @@ threshold distance or rotated more than a threshold angle since the last keyfram
 
 $$\text{add keyframe if}\quad \|\Delta\boldsymbol{t}\|_2 \ge d_\text{min} \quad\text{or}\quad \|\text{Log}(\Delta\boldsymbol{R})\|_2 \ge \theta_\text{min}$$
 
-where $\Delta\boldsymbol{T} = \boldsymbol{T}_\text{last\_kf}^{-1} \cdot \boldsymbol{T}_\text{world\_raw}$ is the
+where $\Delta\boldsymbol{T} = \boldsymbol{T}_{\text{last-kf}}^{-1} \cdot \boldsymbol{T}_{\text{world-raw}}$ is the
 raw motion since the last keyframe.
 
 Each keyframe stores:
@@ -944,7 +942,9 @@ residual (full derivation in Appendix F).
 These Jacobians are assembled into the $6n \times 6n$ normal equations — one 6×6 block per
 node, non-zero only where nodes share an edge:
 
-$$\boldsymbol{H} = \sum_{(i,j) \in \mathcal{E}} \begin{bmatrix} \boldsymbol{J}_i^\top \boldsymbol{\Omega}_{ij} \boldsymbol{J}_i & \boldsymbol{J}_i^\top \boldsymbol{\Omega}_{ij} \boldsymbol{J}_j \\ \boldsymbol{J}_j^\top \boldsymbol{\Omega}_{ij} \boldsymbol{J}_i & \boldsymbol{J}_j^\top \boldsymbol{\Omega}_{ij} \boldsymbol{J}_j \end{bmatrix}_{(i,j)}, \qquad \boldsymbol{b} = \sum_{(i,j) \in \mathcal{E}} \begin{bmatrix} \boldsymbol{J}_i^\top \boldsymbol{\Omega}_{ij} \boldsymbol{e}_{ij} \\ \boldsymbol{J}_j^\top \boldsymbol{\Omega}_{ij} \boldsymbol{e}_{ij} \end{bmatrix}_{(i,j)}$$
+$$
+\boldsymbol{H} = \sum_{(i,j) \in \mathcal{E}} \begin{bmatrix} \boldsymbol{J}_i^\top \boldsymbol{\Omega}_{ij} \boldsymbol{J}_i & \boldsymbol{J}_i^\top \boldsymbol{\Omega}_{ij} \boldsymbol{J}_j \\ \boldsymbol{J}_j^\top \boldsymbol{\Omega}_{ij} \boldsymbol{J}_i & \boldsymbol{J}_j^\top \boldsymbol{\Omega}_{ij} \boldsymbol{J}_j \end{bmatrix}_{(i,j)}, \qquad \boldsymbol{b} = \sum_{(i,j) \in \mathcal{E}} \begin{bmatrix} \boldsymbol{J}_i^\top \boldsymbol{\Omega}_{ij} \boldsymbol{e}_{ij} \\ \boldsymbol{J}_j^\top \boldsymbol{\Omega}_{ij} \boldsymbol{e}_{ij} \end{bmatrix}_{(i,j)}
+$$
 
 $\boldsymbol{H}$ is symmetric positive semi-definite by construction (each term
 $\boldsymbol{J}^\top \boldsymbol{\Omega} \boldsymbol{J}$ is PSD because $\boldsymbol{\Omega} > 0$). The linear
@@ -956,7 +956,14 @@ $$\boldsymbol{\delta} = -\boldsymbol{H}^{-1} \boldsymbol{b} \qquad \text{(comput
 This gives the correction vector $\boldsymbol{\delta} \in \mathbb{R}^{6n}$ — all node corrections
 stacked into one long vector:
 
-$$\boldsymbol{\delta} = \begin{bmatrix} \delta\boldsymbol{\xi}_0 \\ \delta\boldsymbol{\xi}_1 \\ \vdots \\ \delta\boldsymbol{\xi}_{n-1} \end{bmatrix} \in \mathbb{R}^{6n}$$
+$$
+\boldsymbol{\delta} = \begin{bmatrix}
+\delta\boldsymbol{\xi}_0 \\
+\delta\boldsymbol{\xi}_1 \\
+\vdots \\
+\delta\boldsymbol{\xi}_{n-1}
+\end{bmatrix} \in \mathbb{R}^{6n}
+$$
 
 where $\delta\boldsymbol{\xi}_k \in \mathbb{R}^6$ is the Lie-algebra correction for node $k$ — the
 6-element slice `delta.segment<6>(6*k)` in code. Each node pose is updated by extracting
@@ -1231,12 +1238,12 @@ Plot saved to: slam_run/slam_analysis.png
 All three topics are interpolated onto the ICP time axis over the window where all
 three overlap. For each sample at time $t$:
 
-$$\text{icp\_err}(t) = \sqrt{(x_\text{icp}(t) - x_\text{gt}(t))^2 + (y_\text{icp}(t) - y_\text{gt}(t))^2}$$
-$$\text{slam\_err}(t) = \sqrt{(x_\text{slam}(t) - x_\text{gt}(t))^2 + (y_\text{slam}(t) - y_\text{gt}(t))^2}$$
+$$\text{icp-err}(t) = \sqrt{(x_\text{icp}(t) - x_\text{gt}(t))^2 + (y_\text{icp}(t) - y_\text{gt}(t))^2}$$
+$$\text{slam-err}(t) = \sqrt{(x_\text{slam}(t) - x_\text{gt}(t))^2 + (y_\text{slam}(t) - y_\text{gt}(t))^2}$$
 
 RMSE is the root-mean-square of those per-sample errors:
 
-$$\text{ICP RMSE} = \sqrt{\frac{1}{N}\sum_t \text{icp\_err}(t)^2}, \qquad \text{SLAM RMSE} = \sqrt{\frac{1}{N}\sum_t \text{slam\_err}(t)^2}$$
+$$\text{ICP RMSE} = \sqrt{\frac{1}{N}\sum_t \text{icp-err}(t)^2}, \qquad \text{SLAM RMSE} = \sqrt{\frac{1}{N}\sum_t \text{slam-err}(t)^2}$$
 
 A lower SLAM RMSE relative to ICP RMSE quantifies how much loop closure and PGO
 reduced the accumulated drift.
