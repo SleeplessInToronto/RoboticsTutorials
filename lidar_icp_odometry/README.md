@@ -676,7 +676,7 @@ threshold distance or rotated more than a threshold angle since the last keyfram
 
 $$\text{add keyframe if}\quad \|\Delta\boldsymbol{t}\|_2 \ge d_\text{min} \quad\text{or}\quad \|\text{Log}(\Delta\boldsymbol{R})\|_2 \ge \theta_\text{min}$$
 
-where $\Delta\boldsymbol{T} = \boldsymbol{T}_{\text{last-kf}}^{-1} \cdot \boldsymbol{T}_{\text{world-raw}}$ is the
+where $\Delta\boldsymbol{T} = \boldsymbol{T}\_{\text{last-kf}}^{-1} \cdot \boldsymbol{T}\_{\text{world-raw}}$ is the
 raw motion since the last keyframe.
 
 Each keyframe stores:
